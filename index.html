@@ -14,6 +14,13 @@
   --danger:#ef5350;
   --ok:#81c784;
 }
+  .borrar{
+  background:#b0bec5;
+  margin-left:8px;
+}
+.borrar:hover{
+  background:#90a4ae;
+}
 body{
   margin:0;
   font-family:Arial;
@@ -103,6 +110,7 @@ button,.btn{
 <input id="peso" type="number" step="0.1" placeholder="Peso (kg)" required>
 <input id="altura" type="number" step="0.01" placeholder="Altura (m)" required>
 <button class="agregar">Agregar</button>
+<button type="button" class="borrar" onclick="limpiarFormulario()">Borrar datos</button>
 </form>
 </div>
 
@@ -181,6 +189,9 @@ document.getElementById("form").onsubmit=async e=>{
   await addDoc(col,{id:Date.now(),nombre:n,edad:ed,peso:p,altura:a,imc});
   e.target.reset();
 };
+  function limpiarFormulario(){
+  document.getElementById("form").reset();
+}
 </script>
 </body>
 </html>

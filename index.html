@@ -131,6 +131,16 @@ button,.btn{
 
 <!-- FIREBASE -->
 <script type="module">
+  import {
+    gestFirestore,
+    collection,
+    addDoc,
+    onSnapshot,
+    deleteDoc,
+    doc,
+    enableIndexDbPersistence
+  }from
+  "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
 import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc } 
 from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
@@ -143,6 +153,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+enableIndexedDbPersistence(db).catch(()=>{});
 const col = collection(db,"personas");
 
 function estadoIMC(imc){

@@ -1,441 +1,186 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>proyectoimc — público (con Firestore)</title>
-  <style>
-    :root{--bg:#f6f8fb;--card:#fff;--muted:#6b7280;--accent:#2563eb;--border:#e6e9ef;--danger:#dc2626}
-    body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;margin:0;background:linear-gradient(180deg,var(--bg),#fff);padding:28px;color:#111827}
-    .wrap{max-width:980px;margin:0 auto}
-    header{display:flex;align-items:center;gap:16px;margin-bottom:18px}
-    .logo{width:56px;height:56px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#7c3aed);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:20px;box-shadow:0 6px 18px rgba(37,99,235,0.12)}
-    h1{font-size:20px;margin:0}
-    p.lead{margin:6px 0 18px;color:var(--muted)}
-    .grid{display:grid;grid-template-columns:1fr 360px;gap:20px}
-    @media (max-width:920px){.grid{grid-template-columns:1fr}.aside{order:2}}
-    .card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px}
-    form .row{display:flex;gap:8px;margin-bottom:10px}
-    label{font-size:13px;color:var(--muted);display:block;margin-bottom:6px}
-    input[type="text"], input[type="number"]{width:100%;padding:9px 10px;border:1px solid #d6d9e0;border-radius:8px;font-size:14px}
-    button.btn{background:var(--accent);color:#fff;padding:9px 12px;border-radius:8px;border:0;cursor:pointer}
-    button.ghost{background:#fff;border:1px solid var(--border);color:#111;padding:7px 10px;border-radius:8px;cursor:pointer}
-    .actions{display:flex;gap:8px;align-items:center;margin-bottom:12px}
-    table{width:100%;border-collapse:collapse;font-size:14px}
-    th,td{padding:10px;border-bottom:1px solid #eef0f4;text-align:left;vertical-align:middle}
-    th{background:#fbfdff;color:var(--muted);font-weight:600;position:sticky;top:0}
-    tbody tr:hover{background:#fbfbfe}
-    .small{font-size:13px;color:var(--muted)}
-    .sql-preview{white-space:pre-wrap;background:#0b1220;color:#e6f0ff;padding:12px;border-radius:8px;overflow:auto;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;font-size:12px}
-    .note{font-size:13px;color:var(--muted);margin-top:8px}
-    .right-foot{display:flex;justify-content:space-between;align-items:center;margin-top:12px}
-    .chip{display:inline-block;padding:6px 8px;border-radius:999px;background:#f3f4f6;color:#111;font-weight:600;font-size:12px}
-    .rec{font-size:13px;color:#0f172a}
-    .provider-btn{margin-left:6px;padding:6px 8px;border-radius:6px;border:1px solid var(--border);background:#fff;cursor:pointer;font-size:12px}
-    .danger{color:var(--danger);font-weight:600}
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Proyecto IMC</title>
+
+<style>
+:root{
+  --bg:#fce4ec;
+  --card:#fff;
+  --accent:#7e57c2;
+  --accent2:#64b5f6;
+  --danger:#ef5350;
+  --ok:#81c784;
+}
+body{
+  margin:0;
+  font-family:Arial;
+  background:linear-gradient(135deg,#fce4ec,#e3f2fd);
+  padding:20px;
+}
+.container{
+  max-width:1200px;
+  margin:auto;
+}
+h1,h2{
+  text-align:center;
+  color:#6a1b9a;
+}
+.card{
+  background:white;
+  padding:20px;
+  border-radius:15px;
+  box-shadow:0 6px 20px rgba(0,0,0,.15);
+  margin-bottom:20px;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+th{
+  background:#ba68c8;
+  color:white;
+  padding:10px;
+}
+td{
+  padding:10px;
+  border-bottom:1px solid #eee;
+  text-align:center;
+}
+tr:hover{background:#f3e5f5}
+
+input{
+  width:100%;
+  padding:8px;
+  margin-bottom:10px;
+  border-radius:8px;
+  border:1px solid #ccc;
+}
+
+button,.btn{
+  padding:8px 12px;
+  border-radius:8px;
+  border:none;
+  cursor:pointer;
+  color:white;
+  font-size:13px;
+}
+
+.agregar{background:var(--accent)}
+.editar{background:var(--ok)}
+.eliminar{background:var(--danger)}
+.prov{background:var(--accent2); font-size:12px}
+
+.actions button{margin:2px}
+
+.estado{
+  font-size:12px;
+  font-weight:bold;
+  padding:5px 8px;
+  border-radius:20px;
+  display:inline-block;
+}
+.bajo{background:#ffe082}
+.normal{background:#c8e6c9}
+.sobre{background:#ffcc80}
+.obeso{background:#ef9a9a}
+</style>
 </head>
+
 <body>
-  <div class="wrap">
-    <header>
-      <div class="logo">IMC</div>
-      <div>
-        <h1>proyectoimc — visor público</h1>
-        <p class="lead">Los registros se almacenan en Firebase Firestore para que todos los visitantes vean los cambios en tiempo real. Añade usuarios y descarga un .sql actualizado. Usa los botones IMSS / ISSSTE / NUTRIÓLOGO para ver recursos útiles según el IMC.</p>
-      </div>
-    </header>
+<div class="container">
 
-    <div class="grid">
-      <main class="card">
-        <div class="actions">
-          <button id="downloadSql" class="btn">Descargar rpd_academia.sql</button>
-          <button id="copyUrl" class="ghost">Copiar URL de la página</button>
-          <button id="syncInitial" class="ghost" title="Subir los datos iniciales a Firestore">Sincronizar datos iniciales</button>
-        </div>
+<h1>📊 Proyecto IMC</h1>
 
-        <div style="overflow:auto;max-height:420px;border-radius:8px">
-          <table id="peopleTable" aria-describedby="tabla">
-            <thead>
-              <tr>
-                <th style="width:56px">ID</th>
-                <th>Nombre</th>
-                <th>Edad</th>
-                <th>Peso (kg)</th>
-                <th>Altura (m)</th>
-                <th>IMC</th>
-                <th>Recomendación</th>
-                <th class="small">Acciones</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
+<!-- FORMULARIO -->
+<div class="card">
+<h2>Agregar persona</h2>
+<form id="form">
+<input id="nombre" placeholder="Nombre" required>
+<input id="edad" type="number" placeholder="Edad" required>
+<input id="peso" type="number" step="0.1" placeholder="Peso (kg)" required>
+<input id="altura" type="number" step="0.01" placeholder="Altura (m)" required>
+<button class="agregar">Agregar</button>
+</form>
+</div>
 
-        <div class="right-foot">
-          <div class="small">Registros totales: <span id="totalCount">0</span></div>
-          <div class="note">Los cambios se guardan en Firestore y se replican a todos los visitantes.</div>
-        </div>
-      </main>
+<!-- TABLA -->
+<div class="card">
+<h2>Registros</h2>
+<table>
+<thead>
+<tr>
+<th>ID</th><th>Nombre</th><th>Edad</th><th>IMC</th><th>Estado</th><th>Recomendación</th><th>Acciones</th>
+</tr>
+</thead>
+<tbody id="tabla"></tbody>
+</table>
+</div>
 
-      <aside class="aside">
-        <div class="card" style="margin-bottom:14px">
-          <h3 style="margin:0 0 8px 0">Agregar usuario</h3>
-          <form id="userForm">
-            <div class="row">
-              <div style="flex:1">
-                <label for="nombre">Nombre</label>
-                <input id="nombre" name="nombre" type="text" required placeholder="Ej: Ana" />
-              </div>
-              <div style="width:100px">
-                <label for="edad">Edad</label>
-                <input id="edad" name="edad" type="number" min="0" required placeholder="25" />
-              </div>
-            </div>
+</div>
 
-            <div class="row">
-              <div style="flex:1">
-                <label for="peso">Peso (kg)</label>
-                <input id="peso" name="peso" type="number" min="0" step="0.1" required placeholder="60.5" />
-              </div>
-              <div style="width:140px">
-                <label for="altura">Altura (m)</label>
-                <input id="altura" name="altura" type="number" min="0" step="0.01" required placeholder="1.72" />
-              </div>
-            </div>
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc } 
+from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
 
-            <div style="display:flex;gap:8px;margin-top:8px">
-              <button class="btn" type="submit">Agregar</button>
-              <button id="clearAll" type="button" class="ghost">Eliminar todos (server)</button>
-            </div>
+const firebaseConfig = {
+  apiKey: "REPLACE_ME",
+  authDomain: "REPLACE_ME",
+  projectId: "REPLACE_ME",
+};
 
-            <div class="note" style="margin-top:10px">El IMC se calcula como peso / (altura²) y queda con 4 decimales.</div>
-          </form>
-        </div>
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const col = collection(db,"personas");
 
-        <div class="card">
-          <h3 style="margin:0 0 8px 0">SQL (preview)</h3>
-          <div id="sqlPreview" class="sql-preview" aria-hidden="false"></div>
-        </div>
-      </aside>
-    </div>
-  </div>
+function estadoIMC(imc){
+  if(imc<18.5) return ["Bajo peso","bajo","Consumir más alimentos nutritivos"];
+  if(imc<25) return ["Peso normal","normal","Mantén hábitos saludables"];
+  if(imc<30) return ["Sobrepeso","sobre","Actividad física y dieta balanceada"];
+  return ["Obesidad","obeso","Consulta a un especialista"];
+}
 
-  <!-- Firebase modular SDK (v9+) -->
-  <script type="module">
-    // =========== CONFIGURA AQUÍ TU FIREBASE =============
-    // Reemplaza el siguiente objeto con la configuración que te da Firebase (Project settings -> SDK -> Config)
-    const firebaseConfig = {
-      apiKey: "REPLACE_ME",
-      authDomain: "REPLACE_ME",
-      projectId: "REPLACE_ME",
-      storageBucket: "REPLACE_ME",
-      messagingSenderId: "REPLACE_ME",
-      appId: "REPLACE_ME"
-    };
-    // ====================================================
+onSnapshot(col,snap=>{
+  const tabla=document.getElementById("tabla");
+  tabla.innerHTML="";
+  snap.forEach(d=>{
+    const p=d.data();
+    const [estado,clase,rec]=estadoIMC(p.imc);
+    tabla.innerHTML+=`
+    <tr>
+      <td>${p.id}</td>
+      <td>${p.nombre}</td>
+      <td>${p.edad}</td>
+      <td>${p.imc.toFixed(2)}</td>
+      <td><span class="estado ${clase}">${estado}</span></td>
+      <td>${rec}</td>
+      <td class="actions">
+        <button class="prov" onclick="window.open('https://www.google.com/search?q=IMSS+${estado}')">IMSS</button>
+        <button class="prov" onclick="window.open('https://www.google.com/search?q=ISSSTE+${estado}')">ISSSTE</button>
+        <button class="prov" onclick="window.open('https://www.google.com/search?q=Nutriólogo+${estado}')">Nutriólogo</button>
+        <button class="eliminar" onclick="del('${d.id}')">Eliminar</button>
+      </td>
+    </tr>`;
+  });
+});
 
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-    import {
-      getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, deleteDoc, getDocs, writeBatch
-    } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+window.del=async(id)=>{
+  if(confirm("¿Eliminar registro?")){
+    await deleteDoc(doc(db,"personas",id));
+  }
+};
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const colRef = collection(db, 'personas');
-
-    // Datos iniciales (extraidos de tu volcado)
-    const initialPeople = [
-      {id:7, nombre:"cristian", edad:19, peso:58, altura:1.7, imc:20.0692},
-      {id:8, nombre:"Karenn", edad:18, peso:54, altura:1.52, imc:23.3726},
-      {id:16, nombre:"luis", edad:19, peso:65, altura:1.6, imc:25.3906},
-      {id:19, nombre:"bnm", edad:45, peso:32, altura:1.57, imc:12.9823},
-      {id:20, nombre:"youuu", edad:24, peso:34, altura:1.65, imc:12.4885},
-      {id:21, nombre:"qwert", edad:45, peso:34, altura:1.87, imc:9.7229},
-      {id:22, nombre:"sd", edad:34, peso:45, altura:1.78, imc:14.2028},
-      {id:23, nombre:"sd", edad:34, peso:45, altura:1.78, imc:14.2028}
-    ];
-
-    // Helpers
-    const escapeHtml = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    const sqlEscape = s => String(s).replace(/'/g,"''");
-    const round4 = n => Math.round((n + Number.EPSILON)*10000)/10000;
-
-    function getBMICategory(imc){
-      if(imc < 18.5) return 'Bajo peso';
-      if(imc < 25) return 'Peso normal';
-      if(imc < 30) return 'Sobrepeso';
-      return 'Obesidad';
-    }
-
-    function getRecommendationText(imc){
-      const cat = getBMICategory(imc);
-      switch(cat){
-        case 'Bajo peso':
-          return 'Bajo peso: considera aumentar la ingesta calórica con alimentos nutritivos, revisa posibles causas médicas y consulta un nutriólogo.';
-        case 'Peso normal':
-          return 'Peso normal: mantiene hábitos saludables, actividad física regular y una dieta equilibrada para conservar un IMC saludable.';
-        case 'Sobrepeso':
-          return 'Sobrepeso: reducir gradualmente calorías, aumentar actividad física y buscar asesoría nutricional para evitar progresión a obesidad.';
-        case 'Obesidad':
-          return 'Obesidad: se recomienda atención médica y nutricional profesional; programas supervisados de pérdida de peso pueden ser necesarios.';
-        default:
-          return '';
-      }
-    }
-
-    // Construye URL para abrir recursos externos según proveedor y categoría
-    function buildProviderUrl(provider, person){
-      // person: {id,nombre,edad,peso,altura,imc}
-      const cat = getBMICategory(person.imc);
-      const simpleCat = cat.toLowerCase();
-      let q = '';
-      if(provider === 'IMSS'){
-        // Buscar recursos IMSS sobre la condición
-        q = `site:imss.gob.mx recomendaciones ${simpleCat} imc ${person.imc}`;
-      } else if(provider === 'ISSSTE'){
-        q = `site:issste.gob.mx recomendaciones ${simpleCat} imc ${person.imc}`;
-      } else {
-        // Nutriólogo: búsqueda general para atención y recomendaciones
-        q = `nutriólogo recomendaciones ${simpleCat} imc ${person.imc} perder peso consejos`;
-      }
-      return 'https://www.google.com/search?q=' + encodeURIComponent(q);
-    }
-
-    // UI refs
-    const tbody = document.querySelector('#peopleTable tbody');
-    const totalCount = document.getElementById('totalCount');
-    const sqlPreview = document.getElementById('sqlPreview');
-
-    // Real-time listener: obtén documentos ordenados por id asc
-    const q = query(colRef, orderBy('id', 'asc'));
-    let currentDocs = []; // array of objects {docId, id, nombre,...}
-    onSnapshot(q, snapshot => {
-      currentDocs = snapshot.docs.map(d => ({docId: d.id, ...d.data()}));
-      renderFromDocs(currentDocs);
-    }, err => {
-      console.error('Firestore snapshot error', err);
-      // Si hay error, mostrar los iniciales (sin docId)
-      renderFromDocs(initialPeople.map(p => ({docId: null, ...p})));
-    });
-
-    function renderFromDocs(docs){
-      // docs: array with fields id, nombre, edad, peso, altura, imc, and docId (string or null)
-      tbody.innerHTML = '';
-      docs.forEach(p => {
-        const recText = getRecommendationText(p.imc);
-        // provider buttons (IMSS, ISSSTE, NUTRIOLOGO)
-        const providerButtons = `
-          <button class="provider-btn" data-prov="IMSS" data-id="${p.docId || ''}">IMSS</button>
-          <button class="provider-btn" data-prov="ISSSTE" data-id="${p.docId || ''}">ISSSTE</button>
-          <button class="provider-btn" data-prov="NUTRIOLOGO" data-id="${p.docId || ''}">NUTRIÓLOGO</button>
-        `;
-        const deleteBtn = p.docId ? `<button data-doc="${p.docId}" class="delBtn ghost">Eliminar</button>` : '';
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${p.id}</td>
-          <td>${escapeHtml(p.nombre)}</td>
-          <td>${p.edad}</td>
-          <td>${p.peso}</td>
-          <td>${p.altura}</td>
-          <td>${p.imc}</td>
-          <td class="rec"><div class="chip">${getBMICategory(p.imc)}</div><div style="margin-top:6px">${escapeHtml(recText)}</div></td>
-          <td class="small">${providerButtons}${deleteBtn}</td>`;
-        tbody.appendChild(tr);
-      });
-      totalCount.textContent = docs.length;
-      attachDeletes();
-      attachProviders();
-      updateSqlPreview(docs);
-    }
-
-    function attachDeletes(){
-      document.querySelectorAll('.delBtn').forEach(btn => {
-        btn.onclick = async () => {
-          const docId = btn.getAttribute('data-doc');
-          if(!confirm('Eliminar este registro en el servidor?')) return;
-          try{
-            await deleteDoc(doc(db, 'personas', docId));
-          } catch(e){
-            console.error(e);
-            alert('Error al eliminar: ' + e.message);
-          }
-        };
-      });
-    }
-
-    function attachProviders(){
-      document.querySelectorAll('.provider-btn').forEach(btn => {
-        btn.onclick = (ev) => {
-          const prov = btn.getAttribute('data-prov');
-          // encontrar persona por docId o por fila index
-          // buscamos la fila padre y extraemos el id numérico (primer td)
-          const tr = btn.closest('tr');
-          if(!tr) return;
-          const idNum = Number(tr.querySelector('td').textContent.trim());
-          const person = currentDocs.find(d => d.id === idNum) || initialPeople.find(d => d.id === idNum);
-          if(!person){
-            alert('No se encontró la información del usuario.');
-            return;
-          }
-          // construir url y abrir en nueva pestaña
-          const url = buildProviderUrl(prov, person);
-          window.open(url, '_blank', 'noopener');
-        };
-      });
-    }
-
-    // Generador SQL
-    function generateSqlDumpFromDocs(docs){
-      const peeps = docs.map(d => ({id:d.id, nombre:d.nombre, edad:d.edad, peso:d.peso, altura:d.altura, imc:d.imc}));
-      const header = `-- phpMyAdmin SQL Dump
--- version 4.5.1
--- http://www.phpmyadmin.net
---
--- Servidor: 127.0.0.1
--- Tiempo de generación: ${new Date().toLocaleString()}
--- Versión del servidor: 10.1.9-MariaDB
--- Versión de PHP: 5.6.15
-
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-SET time_zone = "+00:00";
-
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
-
---
--- Base de datos: \`proyectoimc\`
---
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla \`personas\`
---
-
-CREATE TABLE \`personas\` (
-  \`id\` int(11) NOT NULL,
-  \`nombre\` varchar(50) DEFAULT NULL,
-  \`edad\` int(11) DEFAULT NULL,
-  \`peso\` float DEFAULT NULL,
-  \`altura\` float DEFAULT NULL,
-  \`imc\` float DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Volcado de datos para la tabla \`personas\`
---
-
-INSERT INTO \`personas\` (\`id\`, \`nombre\`, \`edad\`, \`peso\`, \`altura\`, \`imc\`) VALUES
-`;
-      const rows = peeps.map(p => `(${p.id}, '${sqlEscape(p.nombre)}', ${p.edad}, ${p.peso}, ${p.altura}, ${p.imc})`).join(',\n') + ';\n\n';
-      const footer = `--
--- Índices para tablas volcadas
---
-
---
--- Indices de la tabla \`personas\`
---
-ALTER TABLE \`personas\`
-  ADD PRIMARY KEY (\`id\`);
-
---
--- AUTO_INCREMENT de las tablas volcadas
---
-
---
--- AUTO_INCREMENT de la tabla \`personas\`
---
-ALTER TABLE \`personas\`
-  MODIFY \`id\` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=${Math.max( (peeps.length ? Math.max(...peeps.map(p=>p.id)) + 1 : 1), 24 )};
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;`;
-      return header + rows + footer;
-    }
-
-    function updateSqlPreview(docs){
-      sqlPreview.textContent = generateSqlDumpFromDocs(docs);
-    }
-
-    // Descargar SQL
-    document.getElementById('downloadSql').addEventListener('click', () => {
-      const text = sqlPreview.textContent || '';
-      const blob = new Blob([text], {type:'text/sql;charset=utf-8'});
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'rpd_academia.sql';
-      document.body.appendChild(a); a.click(); a.remove();
-      URL.revokeObjectURL(a.href);
-    });
-
-    // Copiar URL
-    document.getElementById('copyUrl').addEventListener('click', () => {
-      const url = window.location.href;
-      navigator.clipboard?.writeText(url).then(()=>alert('URL copiada:\n' + url), ()=>prompt('Copia la URL manualmente:', url));
-    });
-
-    // Agregar usuario -> escribe en Firestore
-    document.getElementById('userForm').addEventListener('submit', async (ev) => {
-      ev.preventDefault();
-      const nombre = document.getElementById('nombre').value.trim();
-      const edad = Number(document.getElementById('edad').value);
-      const peso = Number(document.getElementById('peso').value);
-      const altura = Number(document.getElementById('altura').value);
-      if(!nombre || !edad || !peso || !altura){ alert('Completa todos los campos correctamente.'); return; }
-      const imc = round4(peso / (altura * altura));
-      // calcula nuevo ID como max(id) + 1 a partir de currentDocs
-      const existing = currentDocs.map(d => d.id);
-      const newId = existing.length ? Math.max(...existing) + 1 : 1;
-      try{
-        await addDoc(colRef, { id: newId, nombre, edad, peso, altura, imc });
-        ev.target.reset();
-        document.getElementById('nombre').focus();
-      } catch(e){
-        console.error(e);
-        alert('Error al guardar en servidor: ' + e.message);
-      }
-    });
-
-    // Eliminar todos (servidor)
-    document.getElementById('clearAll').addEventListener('click', async () => {
-      if(!confirm('Eliminar todos los registros en Firestore? Esta acción no se puede deshacer.')) return;
-      try{
-        const snap = await getDocs(colRef);
-        const batch = writeBatch(db);
-        snap.forEach(d => batch.delete(doc(db, 'personas', d.id)));
-        await batch.commit();
-        alert('Todos los registros eliminados en el servidor.');
-      } catch(e){
-        console.error(e);
-        alert('Error al eliminar todos: ' + e.message);
-      }
-    });
-
-    // Sincronizar datos iniciales a Firestore (subir only if empty or confirmar)
-    document.getElementById('syncInitial').addEventListener('click', async () => {
-      if(!confirm('Subir los datos iniciales a Firestore? Evita duplicados: la función verificará IDs existentes.')) return;
-      try{
-        const snap = await getDocs(colRef);
-        const existingIds = new Set(snap.docs.map(d => d.data().id));
-        // batch writes
-        const batch = writeBatch(db);
-        initialPeople.forEach((p) => {
-          if(!existingIds.has(p.id)){
-            const newRef = doc(collection(db, 'personas'));
-            batch.set(newRef, p);
-          }
-        });
-        await batch.commit();
-        alert('Datos iniciales subidos (sin duplicados de ID).');
-      } catch(e){
-        console.error(e);
-        alert('Error al sincronizar iniciales: ' + e.message);
-      }
-    });
-
-    // Nota: si hay problemas con la configuración de Firebase, revisa firebaseConfig y las reglas de Firestore.
-  </script>
+document.getElementById("form").onsubmit=async e=>{
+  e.preventDefault();
+  const n=nombre.value, ed=+edad.value, p=+peso.value, a=+altura.value;
+  const imc=p/(a*a);
+  await addDoc(col,{id:Date.now(),nombre:n,edad:ed,peso:p,altura:a,imc});
+  e.target.reset();
+};
+</script>
 </body>
 </html>

@@ -189,7 +189,7 @@ document.getElementById("form").onsubmit=async e=>{
   await addDoc(col,{id:Date.now(),nombre:n,edad:ed,peso:p,altura:a,imc});
   e.target.reset();
 };
-  function limpiarFormulario(){
+ window.limpiarFormulario = function(){
   document.getElementById("form").reset();
 }
 </script>
